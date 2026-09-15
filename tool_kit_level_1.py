@@ -33,20 +33,18 @@ class Record:
             if data != "":
                 field_status = True
             else:
-                field_status = False
-                break
+                print(f"Row with Id {self.id} has missing values.")
+                return False
+
         if field_status == True:
             return True
-        else:
-            print(f"Row with Id {self.id} has missing values.")
-            return False
+       
         
-
 recorded_obj = []
 
 for i in range(len(csv_data_list)):
-    obj = Record(csv_data_list[i]['id'], csv_data_list[i]['name'], csv_data_list[i]['age'], csv_data_list[i]['city'], csv_data_list[i]['score'], )
+    obj = Record((csv_data_list[i]['id']), (csv_data_list[i]['name']), (csv_data_list[i]['age']), (csv_data_list[i]['city']), (csv_data_list[i]['score']))
     obj.is_valid()
     recorded_obj.append(obj)
 
-print(recorded_obj[0])
+print(recorded_obj[0].name)
