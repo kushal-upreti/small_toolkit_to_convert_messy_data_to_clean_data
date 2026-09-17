@@ -47,7 +47,7 @@ number_mapping = {
 
 def mean(count: int, total:int | float) -> float:
     avg = total / count
-
+    return avg
 
 def findDuplicateID(filepath):
     with open(filepath, 'r') as csvfile:
