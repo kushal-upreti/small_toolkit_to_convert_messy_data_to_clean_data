@@ -20,7 +20,7 @@ class Report:
         for reason, count in self.dataset.dropped_reasons.items():
             print(f"{reason}: {count}")
 
-        print("\n\n******** Flagged duplicate Id for Review **********")
+        print("\n\n******** Flagged duplicate Id but different value for Review **********")
         print(f"Duplicated Id: {self.dataset.duplicate_ids}")
 
         print("\nAverage score:", self.average)

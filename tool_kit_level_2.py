@@ -49,24 +49,37 @@ def mean(count: int, total:int | float) -> float:
     avg = total / count
     return avg
 
-def findDuplicateID(filepath):
+def findDuplicateID(filepath:str) -> set:
     with open(filepath, 'r') as csvfile:
-    
+
         reader = csv.DictReader(csvfile)
-        duplicates_ids = set()
-        seen_ids = set()
+
+        seen_records = {}
+        duplicate_ids = set()
+
         for row in reader:
             record_id = row['id'].strip()
 
             if record_id == '':
                 continue
 
-            if record_id in seen_ids:
-                duplicates_ids.add(int(record_id))
-            else:
-                seen_ids.add(record_id)
+            record = (
+                row['id'].strip(),
+                row['name'].strip(),
+                row['age'].strip(),
+                row['city'].strip(),
+                row['score'].strip()
+            )
 
-    return duplicates_ids
+            if record_id in seen_records:
+
+                if seen_records[record_id] != record:
+                    duplicate_ids.add(int(record_id))
+
+            else:
+                seen_records[record_id] = record
+
+    return duplicate_ids
 
 
 class DataCleaning:
