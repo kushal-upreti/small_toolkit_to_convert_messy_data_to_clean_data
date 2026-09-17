@@ -86,7 +86,3 @@ id,name,age,city,score
 ├── tool_kit_level_5.py   # Report
 └── messy_people.csv      # input data (not included)
 ```
-
-## License
-
-Add your license information here.
