@@ -1,10 +1,5 @@
 import csv
-import matplotlib.pyplot as plt
 from tool_kit_level_1 import Record
-
-with open("messy_people.csv", 'r') as csvfile:
-    csv_reader = csv.DictReader(csvfile)
-    csv_dict_list = list(csv_reader)
 
 number_mapping = {
     "one": 1,
@@ -49,217 +44,119 @@ number_mapping = {
     "forty": 40
 }
 
-""""
-min = 28
-max= 28
 
-for i in range(len(dict_list)):
-
-    try:
-        if dict_list[i]['age'] == 'thirty' or dict_list[i]['age'] == '':
-
-            if max <= int(dict_list[i+1]['age']):
-                max = int(dict_list[i+1]['age'])
-
-            if min >= int(dict_list[i+1]['age']):
-                min = int(dict_list[i+1]['age'])
-
-        else:
-            if max <= int(dict_list[i]['age']):
-                max = int(dict_list[i]['age'])
-
-            if min >= int(dict_list[i]['age']):
-                min = int(dict_list[i]['age'])           
-
-    except Exception as e:
-        print(e)
+def mean(count: int, total:int | float) -> float:
+    avg = total / count
 
 
-print(max, min) """
-
-def mean(age):
-    try:
-        sum = 0
-        for data in age:
-            sum += data
-        avg = sum / len(age)
-
-        return avg
-    except (ValueError, TypeError):
-        print ("int or float datatype is required to process mean")
-
-
-def iqr_range(data_list):
-    try:
-        data_list.sort()
-        n= len(data_list)
-
-        if n % 2 == 0 or n % 4 == 0:
-            median = (data_list[n//2-1] + data_list[(n//2)])/2
-            q1 = (data_list[n//4-1]) + (((n/4)-(n//4)) *(data_list[(n//4)]-data_list[n//4-1]))
-            q3 = (data_list[(3*n)//4-1]) + (((3*n)/4)-((3*n)//4)) *(data_list[((3*n)//4)]-data_list[((3*n)//4)-1])
-        else:
-            median = data_list[(n)//2]
-            q1 = data_list[n//4]
-            q3 = data_list[(3*n)//4]
-
-        lb = q1 - ((1.5) *(q3-q1))
-        ub = q3 + ((1.5) *(q3-q1))
-
-        return lb ,ub, median
-    except ValueError:
-        return ("datatype is string or consist empty string so Lb and ub canot be calculated")
+def findDuplicateID(filepath):
+    with open(filepath, 'r') as csvfile:
     
+        reader = csv.DictReader(csvfile)
+        duplicates_ids = set()
+        seen_ids = set()
+        for row in reader:
+            record_id = row['id'].strip()
 
-def mode(data_list):
+            if record_id == '':
+                continue
 
-    mode_value = ['sarlahi', 1]
-    for i in range(len(data_list)):
-        counter = 1
-        for j in range(1,len(data_list)):
-            if data_list[i].lower() == data_list[j].lower():
-                counter +=1
+            if record_id in seen_ids:
+                duplicates_ids.add(int(record_id))
+            else:
+                seen_ids.add(record_id)
 
-        if counter > mode_value[1]:
-            mode_value[0] = (data_list[i])
-            mode_value[1] = (counter)
-
-    return mode_value
-
-
-def type_conversion():
-
-    for i in range(len(csv_dict_list)):
-    
-        for key in number_mapping:
-
-            if csv_dict_list[i]['age'].lower() == key.lower():
-                csv_dict_list[i]['age']= str(number_mapping[key])
-
-        if csv_dict_list[i]['age'] != '':
-            csv_dict_list[i]['age'] = int(csv_dict_list[i]['age'])
-
-        if csv_dict_list[i]['id'] != '':
-            csv_dict_list[i]['id'] = int(csv_dict_list[i]['id'])
-
-        if csv_dict_list[i]['score'] != '':
-            csv_dict_list[i]['score'] = float(csv_dict_list[i]['score'])
+    return duplicates_ids
 
 
-def check_outlier(csv_dict_list, lb, ub, key:str):
-    outlier = []
+class DataCleaning:
 
-    for i in range(len(csv_dict_list)):
+    def __init__(self):
+        self.age_avg = None
+        self.score_avg = None
+        self.mode_name = None
+        self.mode_city = None
+        self.duplicate_ids = None
 
-        if csv_dict_list[i][key] == '':
-            continue
+    def type_convert_and_word_to_num(self, data:dict) -> dict:
+        for i in data:
+            for key in number_mapping:
+                if data[i] == key:
+                    data[i] = number_mapping[key]
 
-        elif csv_dict_list[i][key] >ub:
-            outlier.append(csv_dict_list[i][key])
+            try:
+                if i == 'id' or i == 'age':
+                    data[i] = int(data[i])
+                elif i == 'score':
+                    data[i] = float(data[i])
 
-        elif csv_dict_list[i][key] < lb:
-            outlier.append(csv_dict_list[i][key])
+            except(ValueError):
+                continue
 
-    if not outlier:
-        print(f'no outlier exist {key} column data')
 
-    else:
-        print("There is an outlier value. Please do furhter check on that value")
+    def statistics(self, filepath:str) -> tuple[DataCleaning, set]:
+        count_age= 0
+        count_score= 0
+        sum_age= 0
+        sum_score = 0
+        self.flag_record = []
         
-    return outlier
+        with open(filepath, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            self.duplicate_ids = findDuplicateID(filepath)
+            max_count_city = 0
+            max_count_name = 0
+            count_dict= {}
+
+            for row in reader:
+
+                self.type_convert_and_word_to_num(row)
+
+                if row['id'] in self.duplicate_ids:
+                    continue
+                    
+                if row['age'] != '':
+                    count_age +=1
+                    sum_age += row['age']
+
+                if row['score'] != '':
+                    count_score += 1
+                    sum_score += row['score']
 
 
-def handle_missing_values(csv_dict_list, mode_value_city, mode_value_name):
+                # calcualte mode statistics of name and city
+                city = row['city'].strip()
+                name= row['name'].strip()
 
-    for i in range(len(csv_dict_list)-1 , -1, -1):
+                if city != '':
+                    count_dict[city] = count_dict.get(city, 0) +1
+                    if  count_dict[city] > max_count_city:
+                        max_count_city = count_dict[city]
+                        self.mode_city = city
 
-        if csv_dict_list[i]['age'] == '' and csv_dict_list[i]['city'] == '' and csv_dict_list[i]['score'] == '':
-            del(csv_dict_list[i])
+                if name != '':
+                    count_dict[name] = count_dict.get(name, 0) +1
+                    if  count_dict[name] > max_count_name:
+                        max_count_name= count_dict[name]
+                        self.mode_name = name                
 
-        if csv_dict_list[i]['age'] == '':
-            csv_dict_list[i]['age'] = age_avg
+            # calculate mean statistics
+            self.age_avg = mean(count_age, sum_age)
+            self.score_avg = mean(count_score, sum_score)
 
-        if csv_dict_list[i]['score'] == '':
-            csv_dict_list[i]['score'] = score_avg
+        return self
 
-        if csv_dict_list[i]['city'] == '':
-            csv_dict_list[i]['city'] = mode_value_city[0]
+    def handle_missing_values(self, row:Record) ->Record:
 
-        if csv_dict_list[i]['name'] == '':
-            csv_dict_list[i]['name'] = mode_value_name[0]
+        if row.age == '':
+            row.age = self.age_avg
 
-    return csv_dict_list
+        if row.score == '':
+            row.score = self.score_avg
 
-# def removeDuplicates(csv_dict_list):
-#     data_list = csv_dict_list
+        if row.name == '':
+            row.name = self.mode_name
 
-#     for i in range(len(data_list)):
-#         del(data_list[i]['id'])
-#         del(data_list[i]['name'])
-#         (hash(data_list[i]['age']))
-#         (hash(data_list[i]['city']))
-#         (hash(data_list[i]['score']))
-
-#     print(data_list)
-
-
-type_conversion()
-
-age_list = [(csv_dict_list[i]['age']) for i in range(len(csv_dict_list)) if csv_dict_list[i]['age'] != '']
-score_list = [(csv_dict_list[i]['score']) for i in range(len(csv_dict_list)) if csv_dict_list[i]['score'] != '']
-name_list = [(csv_dict_list[i]['name']) for i in range(len(csv_dict_list)) if csv_dict_list[i]['name'] != '']
-city_list = [(csv_dict_list[i]['city']) for i in range(len(csv_dict_list)) if csv_dict_list[i]['city'] != '']
-
-
-age_avg= round(mean(age_list))
-score_avg= (mean(score_list))
-
-age_lb, age_ub, age_median = (iqr_range(age_list))
-score_lb, score_ub, score_median = (iqr_range(score_list))
-
-outlier_data_age = check_outlier(csv_dict_list, age_lb, age_ub, 'age')
-outlier_data_score = check_outlier(csv_dict_list, score_lb, score_ub, 'score')
-
-handle_missed_Values = handle_missing_values(csv_dict_list, mode(city_list), mode(name_list))
-
-
-
-
-
-
-
-
-# plt.hist(score_list)
-# plt.xlabel("age")
-# plt.ylabel('frequency')
-# plt.show()
-
-for i in range(len(csv_dict_list)):
-    csv_dict_list[i]['id'] = i+1
-
-
-recorded_obj = []
-for i in range(len(csv_dict_list)):
-    obj = Record((csv_dict_list[i]['id']), (csv_dict_list[i]['name']), (csv_dict_list[i]['age']), (csv_dict_list[i]['city']), (csv_dict_list[i]['score']))
-    recorded_obj.append(obj)
-
-recorded_obj[0].name = ''
-
-print(recorded_obj[0].name)
-
-for i in range(len(recorded_obj)):
-    if not recorded_obj[i].is_valid():
-        status = False
-
-if status:
-    print("data is clean")
-
-
-# removeDuplicates(csv_dict_list)
-# print('age_avg: ', age_avg)
-# print('age_median: ', age_median)
-# print('score_Avg', score_avg)
-# print('score median: ', score_median)
-# print('score_q1: ', score_q1)
-# print('score_q3: ', score_q3)
+        if row.city == '':
+            row.city = self.mode_city
 
