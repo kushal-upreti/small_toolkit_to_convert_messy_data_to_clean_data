@@ -1,8 +1,4 @@
-from tool_kit_level_0 import dict_list
 from dataclasses import dataclass
-
-csv_data_list = dict_list("messy_people.csv")
-
 # -------------Record class using normal init constructor---------------------
 
 # class Record:
@@ -23,7 +19,7 @@ class Record:
     city: str
     score: float
 
-    def is_valid(self):
+    def is_valid(self) -> bool:
         value_list = [self.id, self.name, self.age, self.city, self.score]
 
         for data in value_list:
