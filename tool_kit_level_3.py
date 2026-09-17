@@ -13,7 +13,7 @@ class DataSet:
         self.rows_loaded = 0
         self.rows_cleaned = 0
         self.rows_dropped = 0
-
+        self.duplicate_ids = None
 
         self.dropped_reasons = {
             "blank": 0,
@@ -31,20 +31,18 @@ class DataSet:
 
         self.obj_data_clean.type_convert_and_word_to_num(row)
         self.obj_data_clean.statistics(self.filepath)
-        duplicate_ids = self.obj_data_clean.duplicate_ids
+        self.duplicate_ids = self.obj_data_clean.duplicate_ids
 
         if not (row['age'] == '' and row['city'] == '' and row['score'] == ''):
-        
-            if not (row['id'] in duplicate_ids):
-                self.records= Record(row['id'], row['name'], row['age'], row['city'], row['score'])
 
-                if self.records.is_valid():
-                    return self.records
-                else:
-                    self.obj_data_clean.handle_missing_values(self.records)
-                    return self.records
+            self.records= Record(row['id'], row['name'], row['age'], row['city'], row['score'])
+            if self.records.is_valid():
+                return self.records
+            else:
+                self.obj_data_clean.handle_missing_values(self.records)
+                return self.records
                 
-            return None
+        return None
 
     def iterate(self):
 
