@@ -99,8 +99,7 @@ class DataCleaning:
         count_score= 0
         sum_age= 0
         sum_score = 0
-        self.flag_record = []
-        
+                
         with open(filepath, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             self.duplicate_ids = findDuplicateID(filepath)
