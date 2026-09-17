@@ -14,57 +14,30 @@ def log_call(func):
     return wrapper
 
 @log_call
-def average_score(dataset: DataSet) -> float:
+def analyze(dataset: DataSet) -> tuple[float, dict, Record, Record]:
+
     total_score = 0
     count = 0
+    city_count = {}
+
+    oldest = None
+    youngest = None
 
     for record in dataset.iterate():
         if record is None:
             continue
+
         total_score += record.score
         count += 1
 
-    if count == 0:
-        return 0
-    
-    return total_score / count
-
-@log_call
-def people_per_city(dataset:DataSet) -> dict:
-    city_count = {}
-    for record in dataset.iterate():
-        if record is None:
-            continue
-
-        if record.city not in city_count:
-            city_count[record.city] = 0
-
-        city_count[record.city] += 1
-
-    return city_count
-
-@log_call
-def oldest(dataset: DataSet) -> Record:
-    oldest = None
-    for record in dataset.iterate():
-
-        if record is None:
-            continue
+        city_count[record.city] = city_count.get(record.city, 0) + 1
 
         if oldest is None or record.age > oldest.age:
             oldest = record
 
-    return oldest
-
-@log_call
-def youngest(dataset:DataSet) -> Record:
-    youngest = None
-    for record in dataset.iterate():
-
-        if record is None:
-            continue
-
         if youngest is None or record.age < youngest.age:
             youngest = record
 
-    return youngest
+    average_score = total_score / count
+
+    return average_score, city_count, oldest, youngest
